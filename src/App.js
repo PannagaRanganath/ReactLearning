@@ -1,84 +1,56 @@
-import React, { Fragment, Component } from 'react';
+import React, { Fragment, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar  from './components/layout/Navbar';
 import Users from './components/users/Users';
+import User from './components/users/User';
 import Search from './components/users/Search';
 import Alert from './components/layout/Alert';
+import About from './components/pages/About';
 import axios from 'axios';
+import GithubState from './context/github/GithubState';
 import './App.css';
 
-class App extends Component{  
-  state = {
-    users: [],
-    loading: false,
-    alert: null
-  };
-
-  // Search Users
-  searchUsers = async (text) => {
-    this.setState({ loading: true })
-
-    const res = await axios.get(`https://api.github.com/search/users?q=${text}
-                                &client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}
-                                &client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`);
-
-    this.setState({ users: res.data.items, loading: false });
-  };
-
-  // Clear Users
-  clearUsers = () => this.setState({ users: [], loading: false });
+const App = () => {  
+  const [alert, setAlert] = useState(null);
 
   // Set Alert
-  setAlert = (msg, type) => {
-    this.setState({ alert: {msg, type} });
+  const showAlert = (msg, type) => {
+    setAlert({msg, type});
 
-    setTimeout(() => this.setState({ alert: null}), 5000);
+    setTimeout(() => setAlert(null), 5000);
   };
 
-  render(){
-    const { users, loading } = this.state;
-
-    return (
-      /*<Router>
-        <div className="App">
-          <Navbar  />
-          <div className="container">
-            <Alert alert={this.state.alert} />
-            <Routes>
-              <Route exact path='/' render={props => (
-                <Fragment>
-                  <Search searchUsers={this.searchUsers} clearUsers={this.clearUsers} 
-                    showClear={users.length > 0 ? true : false} 
-                    setAlert={this.setAlert} />
-                    <Users loading={loading} users={users} />
-                </Fragment>
-              )} />
-            </Routes>          
-          </div>
-        </div>
-      </Router>*/ 
-        
+  return (  
+      <GithubState>    
         <Router>
           <div className="App">
             <Navbar  />
             <div className="container">
-              <Alert alert={this.state.alert} />
+              <Alert alert={alert} />
               <Routes>
                 <Route exact path='/' element={
                         <Fragment>
-                          <Search searchUsers={this.searchUsers} clearUsers={this.clearUsers} 
-                            showClear={users.length > 0 ? true : false} 
-                            setAlert={this.setAlert} 
-                          />
-                          <Users loading={loading} users={users} />
+                          <Search setAlert={showAlert} />
+                          <Users />
                         </Fragment>
-                        } />
+                 } />
+                 <Route exact path='/about' element={ 
+                   <Fragment>
+                     <About />
+                   </Fragment>
+                  } />
+                  <Route exact path='/user/bradtraversy' render={(props) => {
+                    return (
+                      <Fragment>
+                        <User {...props} />
+                      </Fragment>
+                    )}} />
               </Routes>                   
             </div>
           </div>
         </Router>
-    );
-  }  
+      </GithubState>  
+  );
 }
 
 export default App;
