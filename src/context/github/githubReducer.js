@@ -2,8 +2,7 @@ import {
     SEARCH_USERS,
     GET_USER,
     CLEAR_USERS,
-    SET_LOADING,
-    SET_ALERT
+    SET_LOADING
 } from '../types';
 
 export default (state, action) => {

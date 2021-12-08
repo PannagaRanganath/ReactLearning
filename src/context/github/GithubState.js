@@ -6,16 +6,26 @@ import {
     SEARCH_USERS,
     GET_USER,
     CLEAR_USERS,
-    SET_LOADING,
-    SET_ALERT
+    SET_LOADING
 } from '../types';
+
+let githubClientId;
+let githubClientSecret;
+
+if (process.env.NODE_ENV !== 'production') {
+    githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
+    githubClientSecret = process.env.REACT_APP_GITHUB_CLIENT_SECRET;
+}
+else {
+    githubClientId = process.env.GITHUB_CLIENT_ID;
+    githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+}
 
 const GithubState = (props) => {
     const initialState = {
         users: [],
         user: {},
-        loading: false,
-        alert: null
+        loading: false
     }
 
     const [state, dispatch] = useReducer(GithubReducer, initialState);
@@ -25,8 +35,8 @@ const GithubState = (props) => {
         setLoading();
     
         const res = await axios.get(`https://api.github.com/search/users?q=${text}
-                                    &client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}
-                                    &client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`);
+                                    &client_id=${githubClientId}
+                                    &client_secret=${githubClientSecret}`);
     
         dispatch({
             type: SEARCH_USERS,
@@ -38,8 +48,8 @@ const GithubState = (props) => {
     const getUser = async (username) => {
         setLoading();
     
-        const res = await axios.get(`https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}
-                                    &client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`);
+        const res = await axios.get(`https://api.github.com/users/${username}?client_id=${githubClientId}
+                                    &client_secret=${githubClientSecret}`);
     
         dispatch({
             type: GET_USER,
@@ -53,14 +63,11 @@ const GithubState = (props) => {
     // Set Loading
     const setLoading = () => dispatch({ type: SET_LOADING });
 
-    // Set Alert
-
     return <GithubContext.Provider
     value={{
         users: state.users,
         user: state.user,
         loading: state.loading,
-        alert: state.alert,
         searchUsers,
         clearUsers,
         getUser
